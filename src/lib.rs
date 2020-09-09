@@ -94,18 +94,6 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
     panic!("oh no")
 }
             }
-            
-            // let inputs2 = inputs
-            //     .iter()
-            //     .cloned()
-            //     .map(|fn_arg| {
-            //         if let syn::FnArg::Typed(syn::PatType { pat, ty, .. }) = fn_arg {
-            //             Ident::new(&format!("{}", quote!(#pat)), Span::call_site())
-            //         } else {
-            //             panic!("Expected accessor argument")
-            //         }
-            //     })
-            //     .collect::<Vec<Ident>>();
             let mut inputs3 = inputs.clone();
             let fn_arg: FnArg = parse_quote!(api: &mut API);
             inputs3.insert(0, fn_arg);
@@ -163,6 +151,9 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
         namespace.variants.push(varient);
     }
     (quote! {
+    lazy_static! {
+        pub static ref ADDRESS: ([u8; 32], std::string::String) = (ellipticoin::constants::SYSTEM_ADDRESS, CONTRACT_NAME.to_string());
+    }
         #namespace
         #(#getters)*
         #(#setters)*
