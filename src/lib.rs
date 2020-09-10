@@ -81,6 +81,8 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
         )
         .collect();
     let get_fn = Ident::new(&format!("get_{}", ty), Span::call_site());
+    let base_namespace = Ident::new(&format!("{}Namespace", ty.to_camel_case()), Span::call_site());
+    // println!("{}", namespace);
     let getters = attrs2
         .iter()
         .map(|(ident, inputs, ty)| {
@@ -102,7 +104,7 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
                 api.#get_fn(
                     (ellipticoin::constants::SYSTEM_ADDRESS, CONTRACT_NAME),
                     [
-                        [MemoryNamespace::#namespace as u8].to_vec(),
+                        [#base_namespace::#namespace as u8].to_vec(),
                         #p
                     ]
                     .concat(),
@@ -132,14 +134,14 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
             pub fn #setter_name<API: ellipticoin::API>(#inputs3, value: #ty) {
          api.#set_fn(
                 (ellipticoin::constants::SYSTEM_ADDRESS, CONTRACT_NAME),
-[[MemoryNamespace::#namespace as u8].to_vec(),
+[[#base_namespace::#namespace as u8].to_vec(),
                         #p
 ].concat(), value);
             })
         })
         .collect::<Vec<syn::ItemFn>>();
     let mut namespace: ItemEnum = parse_quote!(
-        pub enum MemoryNamespace {}
+        pub enum #base_namespace {}
     );
     for (ident, _inputs, _ty) in attrs2.iter() {
         let varient = Variant {
@@ -151,9 +153,6 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
         namespace.variants.push(varient);
     }
     (quote! {
-    lazy_static! {
-        pub static ref ADDRESS: ([u8; 32], std::string::String) = (ellipticoin::constants::SYSTEM_ADDRESS, CONTRACT_NAME.to_string());
-    }
         #namespace
         #(#getters)*
         #(#setters)*
