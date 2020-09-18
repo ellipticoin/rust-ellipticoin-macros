@@ -102,7 +102,7 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
             parse_quote!(
             pub fn #getter_name<API: ellipticoin::API>(#inputs3) -> #ty {
                 api.#get_fn(
-                    (ellipticoin::constants::SYSTEM_ADDRESS, CONTRACT_NAME),
+                    CONTRACT_NAME,
                     [
                         [#base_namespace::#namespace as u8].to_vec(),
                         #p
@@ -133,7 +133,7 @@ fn accessors(item: TokenStream, ty: &str) -> TokenStream {
             parse_quote!(
             pub fn #setter_name<API: ellipticoin::API>(#inputs3, value: #ty) {
          api.#set_fn(
-                (ellipticoin::constants::SYSTEM_ADDRESS, CONTRACT_NAME),
+                CONTRACT_NAME,
 [[#base_namespace::#namespace as u8].to_vec(),
                         #p
 ].concat(), value);
